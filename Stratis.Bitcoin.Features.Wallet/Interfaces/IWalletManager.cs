@@ -105,6 +105,13 @@ namespace Stratis.Bitcoin.Features.Wallet.Interfaces
         IEnumerable<HdAddress> GetUnusedAddresses(WalletAccountReference accountReference, int count);
 
         /// <summary>
+        /// Gets a new address (and adds it to the list of tracked addresses), every time.
+        /// </summary>
+        /// <returns>The new address.</returns>
+        /// <param name="accountReference">Account reference.</param>
+        HdAddress GetNewAddress(WalletAccountReference accountReference);
+
+        /// <summary>
         /// Gets a collection of addresses containing transactions for this coin.
         /// </summary>
         /// <param name="walletName">The wallet name.</param>

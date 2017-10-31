@@ -715,6 +715,33 @@ namespace Stratis.Bitcoin.Features.Wallet.Controllers
         }
 
         /// <summary>
+        /// Gets a new address
+        /// </summary>
+        [Route("newaddress")]
+        [HttpGet]
+        public IActionResult GetNewAddress([FromQuery]GetNewAddressModel request)
+        {
+            Guard.NotNull(request, nameof(request));
+
+            // checks the request is valid
+            if (!this.ModelState.IsValid)
+            {
+                return BuildErrorResponse(this.ModelState);
+            }
+
+            try
+            {
+                var result = this.walletManager.GetNewAddress(new WalletAccountReference(request.WalletName, request.AccountName));
+                return this.Json(result.Address);
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError("Exception occurred: {0}", e.ToString());
+                return ErrorHelpers.BuildErrorResponse(HttpStatusCode.BadRequest, e.Message, e.ToString());
+            }
+        }
+
+        /// <summary>
         /// Gets the extpubkey of the specified account.
         /// </summary>
         [Route("extpubkey")]

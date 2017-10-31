@@ -446,6 +446,33 @@ namespace Stratis.Bitcoin.Features.Wallet
         }
 
         /// <inheritdoc />
+        public HdAddress GetNewAddress(WalletAccountReference accountReference)
+        {
+            Guard.NotNull(accountReference, nameof(accountReference));
+            this.logger.LogTrace("({0}:'{1}')", nameof(accountReference), accountReference);
+
+            Wallet wallet = this.GetWalletByName(accountReference.WalletName);
+
+            HdAddress hdAddress;
+
+            lock (this.lockObject)
+            {
+                HdAccount account = wallet.GetAccountByCoinType(accountReference.AccountName, this.coinType);
+                var newAddress = account.CreateAddresses(this.network, 1, isChange: false).Single();
+                hdAddress = account.ExternalAddresses.Single(x => x.Address == newAddress);
+            }
+
+            // save the changes to the file
+            this.SaveWallet(wallet);
+
+            // adds the address to the list of tracked addresses
+            this.LoadKeysLookupLock();
+
+            this.logger.LogTrace("(-)");
+            return hdAddress;
+        }
+
+        /// <inheritdoc />
         public HdAddress GetOrCreateChangeAddress(HdAccount account)
         {
             this.logger.LogTrace("()");
